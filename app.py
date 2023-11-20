@@ -153,78 +153,78 @@ def main():
 
     st.data_editor(df_output, use_container_width=True)
 
-    # Initialise the Word document
-    doc = docx.Document()
+    # # Initialise the Word document
+    # doc = docx.Document()
 
-    header = doc.add_paragraph("LOGBOOK")
-    header.runs[0].bold = True  # Set the first run (text) to bold
-    header.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    # header = doc.add_paragraph("LOGBOOK")
+    # header.runs[0].bold = True  # Set the first run (text) to bold
+    # header.alignment = WD_ALIGN_PARAGRAPH.CENTER
 
-    resident = doc.add_paragraph()
-    resident.add_run('RESIDENT: ').bold = True
-    resident.add_run(f'{name}')
-    rotation = doc.add_paragraph()
-    rotation.add_run('ROTATION: ').bold = True
-    rotation.add_run(f'{department}')
-    hospital_site = doc.add_paragraph()
-    hospital_site.add_run('HOSPITAL SITE: ').bold = True
-    hospital_site.add_run(f'{hospital}')
-    attendance = doc.add_paragraph()
-    attendance.add_run('Attendance Date: ').bold = True
-    attendance.add_run('From: ').bold = True
-    attendance.add_run(f'{start_date} ')
-    attendance.add_run('To: ').bold = True
-    attendance.add_run(f'{end_date}')
-    supervisor = doc.add_paragraph()
-    supervisor.add_run('Supervisor (name and surname): ').bold = True
-    supervisor.add_run(f'{tutor}')
-    signature  = doc.add_paragraph()
-    signature.add_run('Supervisor (signature): ').bold = True
+    # resident = doc.add_paragraph()
+    # resident.add_run('RESIDENT: ').bold = True
+    # resident.add_run(f'{name}')
+    # rotation = doc.add_paragraph()
+    # rotation.add_run('ROTATION: ').bold = True
+    # rotation.add_run(f'{department}')
+    # hospital_site = doc.add_paragraph()
+    # hospital_site.add_run('HOSPITAL SITE: ').bold = True
+    # hospital_site.add_run(f'{hospital}')
+    # attendance = doc.add_paragraph()
+    # attendance.add_run('Attendance Date: ').bold = True
+    # attendance.add_run('From: ').bold = True
+    # attendance.add_run(f'{start_date} ')
+    # attendance.add_run('To: ').bold = True
+    # attendance.add_run(f'{end_date}')
+    # supervisor = doc.add_paragraph()
+    # supervisor.add_run('Supervisor (name and surname): ').bold = True
+    # supervisor.add_run(f'{tutor}')
+    # signature  = doc.add_paragraph()
+    # signature.add_run('Supervisor (signature): ').bold = True
 
-    # Initialise the table
-    t = doc.add_table(rows=(df_output.shape[0] + 1), cols=df_output.shape[1])
-    # Add borders
-    t.style = 'TableGrid'
-    # Add the column headings
-    for j in range(df_output.shape[1]):
-        cell = t.cell(0, j)
-        cell.text = df_output.columns[j]
-        cell.paragraphs[0].runs[0].bold = True  # Set the first run (text) in the cell to bold
+    # # Initialise the table
+    # t = doc.add_table(rows=(df_output.shape[0] + 1), cols=df_output.shape[1])
+    # # Add borders
+    # t.style = 'TableGrid'
+    # # Add the column headings
+    # for j in range(df_output.shape[1]):
+    #     cell = t.cell(0, j)
+    #     cell.text = df_output.columns[j]
+    #     cell.paragraphs[0].runs[0].bold = True  # Set the first run (text) in the cell to bold
 
-    # Add the body of the data frame
-    for i in range(df_output.shape[0]):
-        for j in range(df_output.shape[1]):
-            cell = df_output.iat[i, j]
-            t.cell(i + 1, j).text = str(cell)
+    # # Add the body of the data frame
+    # for i in range(df_output.shape[0]):
+    #     for j in range(df_output.shape[1]):
+    #         cell = df_output.iat[i, j]
+    #         t.cell(i + 1, j).text = str(cell)
 
-    for cell in t.columns[0].cells:
-        cell.width = Inches(0.5)
-    for cell in t.columns[2].cells:
-        cell.width = Inches(1)
-    for cell in t.columns[3].cells:
-        cell.width = Inches(2)
-    for cell in t.columns[4].cells:
-        cell.width = Inches(3)
+    # for cell in t.columns[0].cells:
+    #     cell.width = Inches(0.5)
+    # for cell in t.columns[2].cells:
+    #     cell.width = Inches(1)
+    # for cell in t.columns[3].cells:
+    #     cell.width = Inches(2)
+    # for cell in t.columns[4].cells:
+    #     cell.width = Inches(3)
 
-    # Center-align the content in the table
-    for row in t.rows:
-        for cell in row.cells:
-            cell.vertical_alignment = WD_ALIGN_VERTICAL.CENTER
+    # # Center-align the content in the table
+    # for row in t.rows:
+    #     for cell in row.cells:
+    #         cell.vertical_alignment = WD_ALIGN_VERTICAL.CENTER
     
-    style = doc.styles['Normal']
-    font = style.font
-    font.name = 'Times New Roman'
-    font.size = Pt(12)
+    # style = doc.styles['Normal']
+    # font = style.font
+    # font.name = 'Times New Roman'
+    # font.size = Pt(12)
 
-    bio = io.BytesIO()
-    doc.save(bio)
-    if doc:
-        st.download_button(
-            label="Click here to download",
-            data=bio.getvalue(),
-            file_name=f"logbook_patients_{department}.docx",
-            mime="docx"
-        )
+    # bio = io.BytesIO()
+    # doc.save(bio)
+    # if doc:
+    #     st.download_button(
+    #         label="Click here to download",
+    #         data=bio.getvalue(),
+    #         file_name=f"logbook_patients_{department}.docx",
+    #         mime="docx"
+    #     )
 
 if __name__ == '__main__':
     main()
