@@ -2,13 +2,13 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 from datetime import timedelta
-import io
-import docx
+# import io
+# import docx
 from docx.shared import Pt
 from docx.enum.text import WD_ALIGN_PARAGRAPH
 from docx.enum.table import WD_ALIGN_VERTICAL
-from docx.shared import Inches
-from streamlit_gsheets import GSheetsConnection
+# from docx.shared import Inches
+# from streamlit_gsheets import GSheetsConnection
 
 def main():
     hospitals = sorted(["Cardiac Research and Surgery Center", "UMC National Center for Maternal and Child Health", "Municipal Children's Hospital 2", "UMC Children's Rehabilitation Center", "Municipal Children's Hospital 3"])
