@@ -2,33 +2,116 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 from datetime import timedelta
-# import io
-# import docx
-# from docx.shared import Pt
-# from docx.enum.text import WD_ALIGN_PARAGRAPH
-# from docx.enum.table import WD_ALIGN_VERTICAL
-# from docx.shared import Inches
+import io
+import docx
+from docx.shared import Pt
+from docx.enum.text import WD_ALIGN_PARAGRAPH
+from docx.enum.table import WD_ALIGN_VERTICAL
+from docx.shared import Inches
 # from streamlit_gsheets import GSheetsConnection
 
 def main():
     hospitals = sorted(["Cardiac Research and Surgery Center", "UMC National Center for Maternal and Child Health", "Municipal Children's Hospital 2", "UMC Children's Rehabilitation Center", "Municipal Children's Hospital 3"])
-    departments = { 'Pediatric Cardiology': {'tutor': 'Ivanova-Razumova T.V.', 'hospital': "Cardiac Research and Surgery Center"}, 
-                    'Pediatric Gastroenterology': {'tutor': 'Ibrayeva A.K.', 'hospital': "UMC National Center for Maternal and Child Health"}, 
-                    'Pediatric Rheumatology': {'tutor': 'Assylbekova M.K.', 'hospital': "UMC National Center for Maternal and Child Health"},
-                    'Pediatric Endocrinology': {'tutor': 'Rakhimzhanova M.K.', 'hospital': "UMC National Center for Maternal and Child Health"},
-                    'Pediatric Radiology': {'tutor': 'Dautov T.B.', 'hospital': "UMC National Center for Maternal and Child Health"},
-                    'Pediatric Emergencies': {'tutor': 'Baigiriyev R.M.', 'hospital': "Municipal Children's Hospital 2"},
-                    'General Pediatrics and Pediatric Rehabilitation': {'tutor': 'Daribayev Zh.R.', 'hospital': "UMC Children's Rehabilitation Center"},
-                    'Pediatric Infectious Diseases': {'tutor': 'Utegenova R.B.', 'hospital': "Municipal Children's Hospital 3"},
-                    'Pediatric Oncology': {'tutor': 'Shaikhyzada K.K.', 'hospital': "UMC National Center for Maternal and Child Health"},
-                    'Pediatric Hematology': {'tutor': 'Umirbekova B.B.', 'hospital': "UMC National Center for Maternal and Child Health"},
-                    'Pediatric Nephrology': {'tutor': 'Rakhimzhanova S.S.', 'hospital': "UMC National Center for Maternal and Child Health"},
-                    'Pediatric Intensive Care Unit': {'tutor': 'Saparov A.I.', 'hospital': "UMC National Center for Maternal and Child Health"},
-                    'Neonatal Intensive Care Unit': {'tutor': 'Abentayeva B.A.', 'hospital': "UMC National Center for Maternal and Child Health"},
-                    'Pediatric Allergology, Immunology and Pulmonology': {'tutor': 'Kovzel E.F.', 'hospital': "UMC National Center for Maternal and Child Health"},
-                    'Neonatology': {'tutor': 'Tortayeva G.S.', 'hospital': "UMC National Center for Maternal and Child Health"},
-                    'Pediatric Neurology': {'tutor': 'Nauryzbayeva A.A.', 'hospital': "UMC National Center for Maternal and Child Health"},
-                    }
+    
+    diseases_list = {
+        'Pediatric Cardiology': {
+            'Common diseases': ['Tetralogy of Fallot', 'Pulmonary atresia', 'Transposition of Great Arteries', 'Single ventricle', 'AtrioVentricular septal defects', 'Atrial Septal Defect', 'Ventricular Septal Defect', 'Patent Ductus Arteriosus', 'Pulmonary stenosis', 'Coarctation of Aorta', 'Aortic Stenosis'],
+            'Frequency': (0.082608696, 0.069565217, 0.104347826, 0.086956522, 0.026086957, 0.369565217, 0.065217391, 0.139130435, 0.030434783, 0.008695652, 0.017391304),
+        },
+        'Pediatric Gastroenterology': {
+            'Common diseases': ['Crohn disease', 'Ulcerative colitis', 'Celiac disease', 'Hepatitis of unknown origin'],
+            'Frequency': (0.49, 0.45, 0.05, 0.01),
+        },
+        'Pediatric Rheumatology': {
+            'Common diseases': ['oligoarthritic JIA', 'polyarthritic JIA', 'enthesitis-related JIA', 'psoriatic JIA', 'SLE', 'dermatomyositis', 'scleroderma', 'vasculitis'],
+            'Frequency': (0.3, 0.2, 0.1, 0.05, 0.1, 0.1, 0.1, 0.05),
+        },
+        'Pediatric Endocrinology': {
+            'Common diseases': ['DMT1', 'DMT2', 'Precoutious puberty', 'Hypothyroidism', 'Hypogonadism', 'Turner syndrome', 'Androgen insensitivity syndrome'],
+            'Frequency': (0.45, 0.05, 0.1, 0.2, 0.1, 0.05, 0.05),
+        },
+        'Pediatric Radiology': {
+            'us': {
+                'Common diseases': ['Hepatomegaly', 'Hepatosplenomegaly', 'Splenomegaly', 'Nephromegaly', 'Post-nephrectomy', 'Pericardial effusion', 'Pleural effusion'],
+                'Frequency': (0.14, 0.14, 0.14, 0.14, 0.14, 0.15, 0.15),
+            },
+            'xray': {
+                'Common diseases': ['Pleural effusion', 'Pneumonia', 'Cardiomegaly', 'Scoliosis'],
+                'Frequency': (0.25, 0.25, 0.25, 0.25),
+            },
+            'ct': {
+                'Common diseases': ['Encephalopathy', 'Wilms tumor', 'Neuroblastoma', 'Cerebral aneurysm', 'Spinal protrusion, L5-S1', 'Spinal protrusion, L4-L5'],
+                'Frequency': (0.17, 0.17, 0.17, 0.17, 0.16, 0.16),
+            },
+            'mri': {
+                'Common diseases': ['Atherosclerotic changes in the coronary arteries', 'Ischemic stroke', 'Histiocytosis', 'Brain tumor', 'Hemorrhagic stroke'],
+                'Frequency': (0.20, 0.20, 0.20, 0.20, 0.20),
+            },
+        },
+        'Pediatric Emergencies': {
+            'Common diseases': ['joint dislocation', 'Torus', 'Concussion', 'Green stick fracture', 'Cuts', 'Linear fracture', 'Spiral fracture'],
+            'Frequency': (0.2, 0.2, 0.1, 0.05, 0.1, 0.3, 0.05),
+        },
+        'General Pediatrics and Pediatric Rehabilitation': {
+            'Common diseases': ['cerebral palsy', 'autism', 'down syndrome'],
+            'Frequency': (0.5, 0.3, 0.2),
+        },
+        'Pediatric Infectious Diseases': {
+            'Common diseases': ['URTI', 'Scarlet fever', 'hand foot mouth disease', 'measles', 'Rotavirus enteritis'],
+            'Frequency': (0.3, 0.1, 0.1, 0.3, 0.2),
+        },
+        'Pediatric Oncology': {
+            'Common diseases': ['Nephroblastoma', 'Neuroblastoma', 'Astrocytoma', 'Medulloblastoma', 'Ependymoma'],
+            'Frequency': (0.3, 0.2, 0.3, 0.1, 0.1),
+        },
+        'Pediatric Hematology': {
+            'Common diseases': ['ALL', 'AML', 'CML', 'Lymphoma'],
+            'Frequency': (0.3, 0.2, 0.3, 0.2),
+        },
+        'Pediatric Nephrology': {
+            'Common diseases': ['Post-infectious glomerulonephritis ', 'Nephrotic syndrome', 'Acute kidney injury', 'Chronic kidney disease', 'Lupus nephritis'],
+            'Frequency': (0.3, 0.3, 0.1, 0.2, 0.1),
+        },
+        'Pediatric Intensive Care Unit': {
+            'Common diseases': ['Respiratory failure', 'Acute bronchiolitis', 'Acute respiratory infection', 'Postoperative complications', 'Hemolytic uremic syndrome', 'Pneumonia', 'Sepsis'],
+            'Frequency': (0.15, 0.1, 0.2, 0.1, 0.05, 0.2, 0.2),
+        },
+        'Neonatal Intensive Care Unit': {
+            'Common diseases': ['Meconium aspiration', 'Bradycardia', 'Bronchopulmonary dysplasia', 'Cerebral palsy', 'Cyanosis', 'Necrotizing enterocolitis', 'Congenital Heart Diseases', 'Pneumonia', 'Respiratory distress syndrome', 'Sepsis'],
+            'Frequency': (0.05, 0.05, 0.15, 0.05, 0.2, 0.05, 0.05, 0.1, 0.20, 0.1),
+        },
+        'Pediatric Allergology, Immunology and Pulmonology': {
+            'Common diseases': ['Common variable immunodeficiency', 'Selective IgA deficiency', 'Chronic Granulomatous Disease', 'Allergic rhinitis', 'Asthma', 'Immunodeficiency', 'Contact dermatitis'],
+            'Frequency': (0.05, 0.15, 0.05, 0.3, 0.3, 0.1, 0.05),
+        },
+        'Neonatology': {
+            'Common diseases': ['Neonatal jaundice', 'Pneumonia', 'Tetrado Fallo', 'AVSD', 'preterm', 'BPD', 'RDS'],
+            'Frequency': (0.3, 0.1, 0.05, 0.05, 0.2, 0.2, 0.1),
+        },
+        'Pediatric Neurology': {
+            'Common diseases': ['Autism spectrum disorder', 'Cerebral palsy', 'Epilepsy', 'Subacute Sclerosing Panenecephalitis', "Rasmussen's encephalitis", 'Duschenne muscular dystrophy'],
+            'Frequency': (0.4, 0.1, 0.3, 0.1, 0.05, 0.05),
+        },
+    }
+    
+    departments = { 
+        'Pediatric Cardiology': {'tutor': 'Ivanova-Razumova T.V.', 'hospital': "Cardiac Research and Surgery Center"}, 
+        'Pediatric Gastroenterology': {'tutor': 'Ibrayeva A.K.', 'hospital': "UMC National Center for Maternal and Child Health"}, 
+        'Pediatric Rheumatology': {'tutor': 'Assylbekova M.K.', 'hospital': "UMC National Center for Maternal and Child Health"},
+        'Pediatric Endocrinology': {'tutor': 'Rakhimzhanova M.K.', 'hospital': "UMC National Center for Maternal and Child Health"},
+        'Pediatric Radiology': {'tutor': 'Dautov T.B.', 'hospital': "UMC National Center for Maternal and Child Health"},
+        'Pediatric Emergencies': {'tutor': 'Baigiriyev R.M.', 'hospital': "Municipal Children's Hospital 2"},
+        'General Pediatrics and Pediatric Rehabilitation': {'tutor': 'Daribayev Zh.R.', 'hospital': "UMC Children's Rehabilitation Center"},
+        'Pediatric Infectious Diseases': {'tutor': 'Utegenova R.B.', 'hospital': "Municipal Children's Hospital 3"},
+        'Pediatric Oncology': {'tutor': 'Shaikhyzada K.K.', 'hospital': "UMC National Center for Maternal and Child Health"},
+        'Pediatric Hematology': {'tutor': 'Umirbekova B.B.', 'hospital': "UMC National Center for Maternal and Child Health"},
+        'Pediatric Nephrology': {'tutor': 'Rakhimzhanova S.S.', 'hospital': "UMC National Center for Maternal and Child Health"},
+        'Pediatric Intensive Care Unit': {'tutor': 'Saparov A.I.', 'hospital': "UMC National Center for Maternal and Child Health"},
+        'Neonatal Intensive Care Unit': {'tutor': 'Abentayeva B.A.', 'hospital': "UMC National Center for Maternal and Child Health"},
+        'Pediatric Allergology, Immunology and Pulmonology': {'tutor': 'Kovzel E.F.', 'hospital': "UMC National Center for Maternal and Child Health"},
+        'Neonatology': {'tutor': 'Tortayeva G.S.', 'hospital': "UMC National Center for Maternal and Child Health"},
+        'Pediatric Neurology': {'tutor': 'Nauryzbayeva A.A.', 'hospital': "UMC National Center for Maternal and Child Health"},
+        }
 
     with st.sidebar:
         name = st.text_input('Enter your first & last name:', value='Dimitri Poddighe')
@@ -39,6 +122,7 @@ def main():
         start_date = cols[0].date_input('Enter start date')
         end_date = cols[1].date_input('Enter end date', value=start_date+timedelta(days=54))
         
+        st.write("Select the amount of patients:")
         if department == 'Pediatric Radiology':
             patient_amount_us = st.slider("Ultrasound:", min_value=1, max_value=100, step=1, value=30)
             patient_amount_xray = st.slider("X-ray:", min_value=1, max_value=100, step=1, value=30)
@@ -46,7 +130,7 @@ def main():
             patient_amount_MRI = st.slider("MRI:", min_value=1, max_value=100, step=1, value=30)
             patient_amount = patient_amount_us + patient_amount_xray + patient_amount_CT + patient_amount_MRI
         else:    
-            patient_amount = st.slider("Select the amount of patients:", min_value=1, max_value=100, step=1, value=30)
+            patient_amount = st.slider("Select the amount of patients:", min_value=1, max_value=100, step=1, value=30, label_visibility='collapsed')
         
         if department in ['Neonatal Intensive Care Unit', 'Neonatology']:
             age_range = np.arange(0, 28, 1)
@@ -61,29 +145,30 @@ def main():
                 remaining_step = (((preferent_age_group[0]-0.1) + (17.9 - preferent_age_group[1]))) / (patient_amount*(100-preferent_probab)/100)
                 age_range = np.concatenate([np.linspace(preferent_age_group[0], preferent_age_group[1], num=round(patient_amount*preferent_probab/100)), np.arange(0.1, preferent_age_group[0], step=remaining_step), np.arange(preferent_age_group[1], 17.9, step=remaining_step)])
 
-    sheet_name = department
-    if sheet_name == 'General Pediatrics and Pediatric Rehabilitation':
-        sheet_name = "Rehabilitation"
-    elif sheet_name == 'Pediatric Allergology, Immunology and Pulmonology':
-        sheet_name = "Allergology"
-    elif sheet_name == 'Pediatric Radiology':
-        sheet_name_us = 'radiology_US'
-        sheet_name_xray = 'radiology_X_ray'
-        sheet_name_ct = 'radiology_CT'
-        sheet_name_mri = 'radiology_MRI'
+
+    # st.dataframe(diseases_list[department])
+
+    # sheet_name = department
+    # if sheet_name == 'Pediatric Radiology':
+    #     sheet_name_us = 'radiology_US'
+    #     sheet_name_xray = 'radiology_X_ray'
+    #     sheet_name_ct = 'radiology_CT'
+    #     sheet_name_mri = 'radiology_MRI'
 
     # # Create a connection object.
     # url = "https://docs.google.com/spreadsheets/d/1m0JxgnEUoojl_o1eRC7zRyJxF-7SxkfTS6qLUVq8Poc/edit?usp=sharing"
     # conn = st.connection("gsheets", type=GSheetsConnection)
     # df_diseases = conn.read(spreadsheet=url, usecols=[0, 1])
-
-    if sheet_name == 'Pediatric Radiology':
-        df_diseases_us = pd.read_excel('logbook_common_diseases.xlsx', sheet_name=sheet_name_us)
-        df_diseases_xray = pd.read_excel('logbook_common_diseases.xlsx', sheet_name=sheet_name_xray)
-        df_diseases_ct = pd.read_excel('logbook_common_diseases.xlsx', sheet_name=sheet_name_ct)
-        df_diseases_mri = pd.read_excel('logbook_common_diseases.xlsx', sheet_name=sheet_name_mri)
+    
+    # file = st.sidebar.file_uploader(label='Upload your file', label_visibility='collapsed')
+    # if file:
+    if department == 'Pediatric Radiology':
+        df_diseases_us = diseases_list['Pediatric Radiology']['us']
+        df_diseases_xray = diseases_list['Pediatric Radiology']['xray']
+        df_diseases_ct = diseases_list['Pediatric Radiology']['ct']
+        df_diseases_mri = diseases_list['Pediatric Radiology']['mri']
     else:
-        df_diseases = pd.read_excel('logbook_common_diseases.xlsx', sheet_name=sheet_name)
+        df_diseases = diseases_list[department]
     
     output = {
                 "№": None,
@@ -106,7 +191,7 @@ def main():
 
     patients_gender = np.random.choice(['male', 'female'], size=patient_amount)
     
-    if sheet_name == 'Pediatric Radiology':
+    if department == 'Pediatric Radiology':
         diseases = np.concatenate((
             np.random.choice(df_diseases_us['Common diseases'], size=patient_amount_us, p=df_diseases_us['Frequency']),
             np.random.choice(df_diseases_xray['Common diseases'], size=patient_amount_xray, p=df_diseases_xray['Frequency']),
@@ -116,7 +201,7 @@ def main():
     else:
         diseases = np.random.choice(df_diseases['Common diseases'], size=patient_amount, p=df_diseases['Frequency'])
 
-    if sheet_name == 'Pediatric Radiology':
+    if department == 'Pediatric Radiology':
         tutor_list = np.concatenate((
             ['Yurana Albayeva']*patient_amount_us,
             ['Shaddat Umbetov']*patient_amount_xray,
@@ -137,15 +222,15 @@ def main():
     header = st.container()
     
     header_text = (f'''
-             ***<h3 style="text-align: center;"> LOGBOOK</h3>***
-             ***RESIDENT:*** {name} \n
-             ***ROTATION:*** {department} \n
-             ***HOSPITAL SITE:*** {hospital} \n
-             ***Attendance Date:*** **From:** {start_date}  **To:** {end_date} \n
-             ***Supervisor (name and surname):*** {tutor} \n
-             ***Supervisor (signature):*** \n
-             ###
-             ''')
+            ***<h3 style="text-align: center;"> LOGBOOK</h3>***
+            ***RESIDENT:*** {name} \n
+            ***ROTATION:*** {department} \n
+            ***HOSPITAL SITE:*** {hospital} \n
+            ***ATTENDANCE Date:*** **From:** {start_date}  **To:** {end_date} \n
+            ***SUPERVISOR (name and surname):*** {tutor} \n
+            ***SUPERVISOR (signature):*** \n
+            ###
+            ''')
 
     header.markdown(header_text, unsafe_allow_html=True)
     
@@ -153,78 +238,80 @@ def main():
 
     st.data_editor(df_output, use_container_width=True)
 
-    # # Initialise the Word document
-    # doc = docx.Document()
+    # Initialise the Word document
+    doc = docx.Document()
 
-    # header = doc.add_paragraph("LOGBOOK")
-    # header.runs[0].bold = True  # Set the first run (text) to bold
-    # header.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    header = doc.add_paragraph("LOGBOOK")
+    header.runs[0].bold = True  # Set the first run (text) to bold
+    header.alignment = WD_ALIGN_PARAGRAPH.CENTER
 
-    # resident = doc.add_paragraph()
-    # resident.add_run('RESIDENT: ').bold = True
-    # resident.add_run(f'{name}')
-    # rotation = doc.add_paragraph()
-    # rotation.add_run('ROTATION: ').bold = True
-    # rotation.add_run(f'{department}')
-    # hospital_site = doc.add_paragraph()
-    # hospital_site.add_run('HOSPITAL SITE: ').bold = True
-    # hospital_site.add_run(f'{hospital}')
-    # attendance = doc.add_paragraph()
-    # attendance.add_run('Attendance Date: ').bold = True
-    # attendance.add_run('From: ').bold = True
-    # attendance.add_run(f'{start_date} ')
-    # attendance.add_run('To: ').bold = True
-    # attendance.add_run(f'{end_date}')
-    # supervisor = doc.add_paragraph()
-    # supervisor.add_run('Supervisor (name and surname): ').bold = True
-    # supervisor.add_run(f'{tutor}')
-    # signature  = doc.add_paragraph()
-    # signature.add_run('Supervisor (signature): ').bold = True
+    resident = doc.add_paragraph()
+    resident.add_run('RESIDENT: ').bold = True
+    resident.add_run(f'{name}')
+    rotation = doc.add_paragraph()
+    rotation.add_run('ROTATION: ').bold = True
+    rotation.add_run(f'{department}')
+    hospital_site = doc.add_paragraph()
+    hospital_site.add_run('HOSPITAL SITE: ').bold = True
+    hospital_site.add_run(f'{hospital}')
+    attendance = doc.add_paragraph()
+    attendance.add_run('Attendance Date: ').bold = True
+    attendance.add_run('From: ').bold = True
+    attendance.add_run(f'{start_date} ')
+    attendance.add_run('To: ').bold = True
+    attendance.add_run(f'{end_date}')
+    supervisor = doc.add_paragraph()
+    supervisor.add_run('Supervisor (name and surname): ').bold = True
+    supervisor.add_run(f'{tutor}')
+    signature  = doc.add_paragraph()
+    signature.add_run('Supervisor (signature): ').bold = True
 
-    # # Initialise the table
-    # t = doc.add_table(rows=(df_output.shape[0] + 1), cols=df_output.shape[1])
-    # # Add borders
-    # t.style = 'TableGrid'
-    # # Add the column headings
-    # for j in range(df_output.shape[1]):
-    #     cell = t.cell(0, j)
-    #     cell.text = df_output.columns[j]
-    #     cell.paragraphs[0].runs[0].bold = True  # Set the first run (text) in the cell to bold
+    # Initialise the table
+    t = doc.add_table(rows=(df_output.shape[0] + 1), cols=df_output.shape[1])
+    # Add borders
+    t.style = 'TableGrid'
+    # Add the column headings
+    for j in range(df_output.shape[1]):
+        cell = t.cell(0, j)
+        cell.text = df_output.columns[j]
+        cell.paragraphs[0].runs[0].bold = True  # Set the first run (text) in the cell to bold
 
-    # # Add the body of the data frame
-    # for i in range(df_output.shape[0]):
-    #     for j in range(df_output.shape[1]):
-    #         cell = df_output.iat[i, j]
-    #         t.cell(i + 1, j).text = str(cell)
+    # Add the body of the data frame
+    for i in range(df_output.shape[0]):
+        for j in range(df_output.shape[1]):
+            cell = df_output.iat[i, j]
+            t.cell(i + 1, j).text = str(cell)
 
-    # for cell in t.columns[0].cells:
-    #     cell.width = Inches(0.5)
-    # for cell in t.columns[2].cells:
-    #     cell.width = Inches(1)
-    # for cell in t.columns[3].cells:
-    #     cell.width = Inches(2)
-    # for cell in t.columns[4].cells:
-    #     cell.width = Inches(3)
+    for cell in t.columns[0].cells:
+        cell.width = Inches(0.5)
+    for cell in t.columns[2].cells:
+        cell.width = Inches(1)
+    for cell in t.columns[3].cells:
+        cell.width = Inches(2)
+    for cell in t.columns[4].cells:
+        cell.width = Inches(3)
 
-    # # Center-align the content in the table
-    # for row in t.rows:
-    #     for cell in row.cells:
-    #         cell.vertical_alignment = WD_ALIGN_VERTICAL.CENTER
+    # Center-align the content in the table
+    for row in t.rows:
+        for cell in row.cells:
+            cell.vertical_alignment = WD_ALIGN_VERTICAL.CENTER
     
-    # style = doc.styles['Normal']
-    # font = style.font
-    # font.name = 'Times New Roman'
-    # font.size = Pt(12)
+    style = doc.styles['Normal']
+    font = style.font
+    font.name = 'Times New Roman'
+    font.size = Pt(12)
 
-    # bio = io.BytesIO()
-    # doc.save(bio)
-    # if doc:
-    #     st.download_button(
-    #         label="Click here to download",
-    #         data=bio.getvalue(),
-    #         file_name=f"logbook_patients_{department}.docx",
-    #         mime="docx"
-    #     )
+    bio = io.BytesIO()
+    doc.save(bio)
+    if doc:
+        st.download_button(
+            label="Click here to download",
+            data=bio.getvalue(),
+            file_name=f"logbook_patients_{department}.docx",
+            mime="docx"
+        )
+# else:
+#     st.subheader('Upload xls file with disease list')
 
 if __name__ == '__main__':
     main()
