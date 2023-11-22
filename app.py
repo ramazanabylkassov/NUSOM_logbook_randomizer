@@ -226,7 +226,7 @@ def main():
             ***RESIDENT:*** {name} \n
             ***ROTATION:*** {department} \n
             ***HOSPITAL SITE:*** {hospital} \n
-            ***ATTENDANCE Date:*** **From:** {start_date}  **To:** {end_date} \n
+            ***ATTENDANCE DATE:*** **From:** {start_date}  **To:** {end_date} \n
             ***SUPERVISOR (name and surname):*** {tutor} \n
             ***SUPERVISOR (signature):*** \n
             ###
@@ -255,16 +255,16 @@ def main():
     hospital_site.add_run('HOSPITAL SITE: ').bold = True
     hospital_site.add_run(f'{hospital}')
     attendance = doc.add_paragraph()
-    attendance.add_run('Attendance Date: ').bold = True
+    attendance.add_run('ATTENDANCE DATE: ').bold = True
     attendance.add_run('From: ').bold = True
     attendance.add_run(f'{start_date} ')
     attendance.add_run('To: ').bold = True
     attendance.add_run(f'{end_date}')
     supervisor = doc.add_paragraph()
-    supervisor.add_run('Supervisor (name and surname): ').bold = True
+    supervisor.add_run('SUPERVISOR (name and surname): ').bold = True
     supervisor.add_run(f'{tutor}')
     signature  = doc.add_paragraph()
-    signature.add_run('Supervisor (signature): ').bold = True
+    signature.add_run('SUPERVISOR (signature): ').bold = True
 
     # Initialise the table
     t = doc.add_table(rows=(df_output.shape[0] + 1), cols=df_output.shape[1])
