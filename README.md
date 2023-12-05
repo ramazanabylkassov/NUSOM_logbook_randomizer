@@ -14,6 +14,10 @@ The Patient Logbook Web App is a Python application built with Streamlit to stre
 
 - **Download as Word File:** The resulting table from the randomized pediatric diagnoses can be downloaded as a Word file for record-keeping.
 
+## How to Access the Deployed Web App
+
+The [Patient Logbook App](https://patientlogbook.streamlit.app/) is deployed and hosted on the Streamlit sharing platform. You can access the app directly through your web browser without the need for local installation.
+
 ## How to Run
 
 1. Clone the repository:
