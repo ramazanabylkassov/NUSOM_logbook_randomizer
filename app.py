@@ -115,7 +115,7 @@ def main():
         }
 
     with st.sidebar:
-        name = st.text_input('Enter your first & last name:', value='Student Studentov')
+        name = st.text_input('Enter your first & last name:', value='Student Studentuly')
         department = st.selectbox('Choose department:', sorted(departments.keys(), key=str.lower))
         tutor = st.text_input("Enter clinical preceptor's name:", value=departments[department]['tutor'])
         hospital = st.selectbox("Choose hospital:", hospitals, index=hospitals.index(departments[department]['hospital']))
